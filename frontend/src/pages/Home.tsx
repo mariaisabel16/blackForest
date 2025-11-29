@@ -17,6 +17,8 @@ export default function Home() {
   const [objectColors, setObjectColors] = useState<Record<number, { hue: number; shade: number }>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showProperties, setShowProperties] = useState(false);
   
   const [detectedObjects, setDetectedObjects] = useState<DetectedObject[]>([]);
 
@@ -52,13 +54,22 @@ export default function Home() {
     fetchDetections();
   }, []);
 
-  const handleSelectObject = (id: number) => {
+  const handleSelectObject = (id: number, opts?: { keepPicker?: boolean }) => {
     setSelectedObject(id);
+    if (!opts?.keepPicker) {
+      setShowColorPicker(false);
+    }
     const stored = objectColors[id];
     if (stored) {
       setHue(stored.hue);
       setShade(stored.shade);
     }
+  };
+
+  const handleOpenProperties = (id: number) => {
+    handleSelectObject(id, { keepPicker: true });
+    setShowProperties(true);
+    setShowColorPicker(true);
   };
 
   const activeColor = selectedObject !== null ? objectColors[selectedObject] : null;
@@ -112,6 +123,7 @@ export default function Home() {
                   thumbnail={obj.imageUrl}
                   isSelected={selectedObject === obj.id}
                   onClick={() => handleSelectObject(obj.id)}
+                  onOpenProperties={() => handleOpenProperties(obj.id)}
                 />
               ))
             ) : (
@@ -177,20 +189,23 @@ export default function Home() {
         </main>
 
         {/* Right Sidebar - Object Properties */}
-        <aside className="w-72 bg-white border-l border-gray-200 p-6 overflow-y-auto">
-          <h2 className="text-sm font-semibold text-gray-900 mb-6">
-            Object Properties
-          </h2>
+        {detectedObjects.length > 0 && showProperties && (
+          <aside className="w-72 bg-white border-l border-gray-200 p-6 overflow-y-auto">
+            <h2 className="text-sm font-semibold text-gray-900 mb-6">
+              Object Properties
+            </h2>
+            <div className="space-y-4">
           
-          <div className="space-y-6">
-            <ColorPicker
-              hue={displayHue}
-              shade={displayShade}
-              onChange={updateColor}
-            />
-
-          </div>
-        </aside>
+              {showColorPicker && selectedObject !== null && (
+                <ColorPicker
+                  hue={displayHue}
+                  shade={displayShade}
+                  onChange={updateColor}
+                />
+              )}
+            </div>
+          </aside>
+        )}
       </div>
     </div>
   );

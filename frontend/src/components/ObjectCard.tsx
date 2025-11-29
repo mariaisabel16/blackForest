@@ -3,13 +3,15 @@ interface ObjectCardProps {
   thumbnail?: string;
   isSelected?: boolean;
   onClick?: () => void;
+  onOpenProperties?: () => void;
 }
 
-export default function ObjectCard({ 
-  name, 
-  thumbnail, 
+export default function ObjectCard({
+  name,
+  thumbnail,
   isSelected = false,
-  onClick 
+  onClick,
+  onOpenProperties,
 }: ObjectCardProps) {
   return (
     <div
@@ -25,29 +27,18 @@ export default function ObjectCard({
           <span className="text-xs text-gray-500">{name}</span>
         )}
       </div>
-      
+
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">{name}</span>
-        <div className="flex gap-2">
-          <button 
-            className="w-6 h-6 bg-white rounded-md flex items-center justify-center hover:bg-gray-200 transition-colors text-xs"
-            onClick={(e) => e.stopPropagation()}
-          >
-            🔄
-          </button>
-          <button 
-            className="w-6 h-6 bg-white rounded-md flex items-center justify-center hover:bg-gray-200 transition-colors text-xs"
-            onClick={(e) => e.stopPropagation()}
-          >
-            ✓
-          </button>
-          <button 
-            className="w-6 h-6 bg-white rounded-md flex items-center justify-center hover:bg-gray-200 transition-colors text-xs"
-            onClick={(e) => e.stopPropagation()}
-          >
-            🔒
-          </button>
-        </div>
+        <button
+          className="px-2 h-7 bg-white rounded-md flex items-center justify-center hover:bg-gray-200 transition-colors text-[11px] font-semibold"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenProperties?.();
+          }}
+        >
+          Edit color
+        </button>
       </div>
     </div>
   );
