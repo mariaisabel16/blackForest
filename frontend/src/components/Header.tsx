@@ -1,7 +1,13 @@
 import Button from './Button';
 import { uploadFile } from '../../api/backend.ts';
 
-export default function Header() {
+export default function Header({
+  onImageReady,
+}: {
+  onImageReady: (url: string) => void;
+}) 
+
+{
 
   const handleClick = async () => {
     const input = document.createElement("input");
@@ -12,9 +18,10 @@ export default function Header() {
         const file = input.files?.[0];
         if (!file) return;
 
-        const result = await uploadFile(file);
-        console.log("RESULT:", result);
-        alert(result.msg);
+        const blob = await uploadFile(file);  
+        const url = URL.createObjectURL(blob); // 👈 imagen del backend
+
+        onImageReady(url);
     };
 
     input.click();

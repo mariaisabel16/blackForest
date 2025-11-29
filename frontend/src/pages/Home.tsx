@@ -21,6 +21,8 @@ export default function Home() {
   const [showProperties, setShowProperties] = useState(false);
   
   const [detectedObjects, setDetectedObjects] = useState<DetectedObject[]>([]);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
 
   useEffect(() => {
     const fetchDetections = async () => {
@@ -104,7 +106,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
-      <Header />
+      <Header onImageReady={setImageUrl} />
       
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Sidebar - AI Detected Objects */}
@@ -169,24 +171,44 @@ export default function Home() {
         </aside>
 
         {/* Center Canvas */}
-        <main className="flex-1 p-8 overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl shadow-lg flex items-center justify-center p-8">
-            <div className="relative w-full max-w-4xl aspect-[4/3] bg-white rounded-xl shadow-2xl overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
-                <div className="text-center text-gray-400">
-                  <p className="text-lg font-medium">Room Canvas</p>
-                  <p className="text-sm">Upload a photo to start editing</p>
-                </div>
-              </div>
-              {selectedObject !== null && (
-                <div
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-36 rounded-lg border border-gray-800 shadow-xl transition-colors"
-                  style={{ backgroundColor: currentColor, opacity: 0.9 }}
+        <main className="flex p-8">
+
+          <div className="w-full h-full flex justify-center items-start">
+
+            {/* CANVAS FRAME */}
+            <div className="w-full h-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden">
+
+              {/* IMAGE */}
+              {imageUrl && (
+                <img
+                  src={imageUrl}
+                  alt="Room"
+                  className="w-full h-full object-cover"
                 />
               )}
+
+              {/* PLACEHOLDER */}
+              {!imageUrl && (
+                <div className="w-full h-[600px] flex flex-col items-center justify-center text-gray-400 bg-gray-50">
+                  <p className="text-lg font-medium">Room Canvas</p>
+                  <p className="text-sm">Upload a room photo to begin</p>
+                </div>
+              )}
+
             </div>
+
           </div>
+
         </main>
+
+        {selectedObject !== null && (
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+                      w-64 h-36 rounded-lg border border-gray-800 shadow-xl transition-colors"
+            style={{ backgroundColor: currentColor, opacity: 0.9 }}
+          />
+        )}
+
 
         {/* Right Sidebar - Object Properties */}
         {detectedObjects.length > 0 && showProperties && (
