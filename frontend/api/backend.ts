@@ -1,6 +1,6 @@
 const API_BASE_URL = "http://localhost:8000";
 
-export async function uploadFile(file: File): Promise<any> {
+export async function uploadFile(file: File): Promise<Blob> {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -9,5 +9,5 @@ export async function uploadFile(file: File): Promise<any> {
         body: formData,
     });
 
-    return response.json();
+    return await response.blob();
 }
