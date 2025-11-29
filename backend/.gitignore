@@ -12,3 +12,7 @@ Thumbs.db
 # IDE / Editor
 .vscode/
 .idea/
+
+# Evitar subir modelos grandes
+*.pt
+*.pth

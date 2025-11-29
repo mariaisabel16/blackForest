@@ -1,5 +1,9 @@
 from pathlib import Path
 from typing import Optional
+import base64
+import io
+from PIL import Image
+
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -46,3 +50,16 @@ def improve_object(
     print(f"[improve_object] Saved to: {output_path}")
 
     return str(output_path)
+
+def generate_object_thumbnail(crop: Image.Image, label: str):
+    buf = io.BytesIO()
+    crop.save(buf, format="PNG")
+    crop_bytes = buf.getvalue()
+
+    generated_png = call_flux_api(
+        crop_bytes,
+        f"Generate a clean PNG of a {label} with transparent background. Preserve shape and color."
+    )
+
+    b64 = base64.b64encode(generated_png).decode()
+    return "data:image/png;base64," + b64
