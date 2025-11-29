@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import room_routes, object_routes, organize_routes
+from routes import room_routes
 
 app = FastAPI(title="RoomAI Designer API")
 
@@ -16,11 +16,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registrar rutas
-app.include_router(room_routes.router)
-app.include_router(object_routes.router)
-app.include_router(organize_routes.router)
-
-@app.get("/ping")
-async def ping():
-    return {"msg": "pong"}
+# Register routes
+app.include_router(room_routes)
