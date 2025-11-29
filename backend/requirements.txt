@@ -1,12 +1,8 @@
 fastapi==0.122.0
 uvicorn==0.38.0
 
-fastapi
-uvicorn
-
 ultralytics
 torch
-torchvision
 
 numpy
 opencv-python
