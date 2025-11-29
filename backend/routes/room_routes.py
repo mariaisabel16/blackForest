@@ -4,17 +4,16 @@ from services.flux_service import generate_flux2, generate_add_flux2
 import requests
 import os
 import base64
+from fastapi.responses import Response
 
 router = APIRouter(prefix="/room", tags=["Room"])
 
-
 @router.post("/upload")
 async def upload_check(file: UploadFile = File(...)):
-    return {
-        "status": "ok",
-        "filename": file.filename,
-        "msg": "archivo recibido"
-    }
+
+    content = await file.read()
+
+    return Response(content, media_type=file.content_type)
 
 @router.post("/eliminate-flux2")
 async def eliminate_flux2(prompt: str = Form(...), file: UploadFile = File(...)):
