@@ -1,0 +1,66 @@
+# Node / JS / TS
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json.*
+pnpm-lock.yaml.*
+yarn.lock.*
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# Frontend bundlers / frameworks
+.vite/
+.vitest/
+.storybook/
+.svelte-kit/
+.angular/
+.happypack/
+.parcel-cache/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.iml
+
+# Logs
+logs/
+*.log
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Python (si el backend usa Python)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.build/
+.eggs/
+*.egg-info/
+.venv/
+venv/
+pip-wheel-metadata/
+.mypy_cache/
+.pytest_cache/
+
+# Misc
+*.orig
