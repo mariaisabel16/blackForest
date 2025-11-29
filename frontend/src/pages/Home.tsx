@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Header from '../components/Header';
-import Toggle from '../components/Toggle';
 import ObjectCard from '../components/ObjectCard';
+import ColorPicker from '../components/ColorPicker';
 
 interface DetectedObject {
   id: number;
@@ -12,12 +12,40 @@ interface DetectedObject {
 
 export default function Home() {
   const [selectedObject, setSelectedObject] = useState<number | null>(null);
+  const [hue, setHue] = useState(180);
+  const [shade, setShade] = useState(60);
+  const [objectColors, setObjectColors] = useState<Record<number, { hue: number; shade: number }>>({});
   
   // This will be populated from backend API when image is uploaded
   const [detectedObjects, setDetectedObjects] = useState<DetectedObject[]>([
     // Mock data - replace with API call
    
   ]);
+
+  const handleSelectObject = (id: number) => {
+    setSelectedObject(id);
+    const stored = objectColors[id];
+    if (stored) {
+      setHue(stored.hue);
+      setShade(stored.shade);
+    }
+  };
+
+  const activeColor = selectedObject !== null ? objectColors[selectedObject] : null;
+  const displayHue = activeColor?.hue ?? hue;
+  const displayShade = activeColor?.shade ?? shade;
+  const currentColor = `hsl(${displayHue}, 90%, ${displayShade}%)`;
+
+  const updateColor = (newHue: number, newShade: number) => {
+    setHue(newHue);
+    setShade(newShade);
+    if (selectedObject !== null) {
+      setObjectColors((prev) => ({
+        ...prev,
+        [selectedObject]: { hue: newHue, shade: newShade },
+      }));
+    }
+  };
 
   // Function to fetch detected objects from backend
   // const fetchDetectedObjects = async (imageFile: File) => {
@@ -51,7 +79,7 @@ export default function Home() {
                   name={obj.name}
                   thumbnail={obj.imageUrl}
                   isSelected={selectedObject === obj.id}
-                  onClick={() => setSelectedObject(obj.id)}
+                  onClick={() => handleSelectObject(obj.id)}
                 />
               ))
             ) : (
@@ -69,11 +97,16 @@ export default function Home() {
             <div className="relative w-full max-w-4xl aspect-[4/3] bg-white rounded-xl shadow-2xl overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
                 <div className="text-center text-gray-400">
-                  <div className="text-6xl mb-4">🏠</div>
                   <p className="text-lg font-medium">Room Canvas</p>
                   <p className="text-sm">Upload a photo to start editing</p>
                 </div>
               </div>
+              {selectedObject !== null && (
+                <div
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-36 rounded-lg border border-gray-800 shadow-xl transition-colors"
+                  style={{ backgroundColor: currentColor, opacity: 0.9 }}
+                />
+              )}
             </div>
           </div>
         </main>
@@ -85,50 +118,11 @@ export default function Home() {
           </h2>
           
           <div className="space-y-6">
-            {/* Color Picker */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-6">Color</h3>
-              <div className="space-y-4">
-                {/* Color Wheel */}
-                <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-inner">
-                  <div
-                    className="w-full h-full"
-                    style={{
-                      background: `conic-gradient(
-                        from 0deg,
-                        #ff0000 0deg,
-                        #ffff00 60deg,
-                        #00ff00 120deg,
-                        #00ffff 180deg,
-                        #0000ff 240deg,
-                        #ff00ff 300deg,
-                        #ff0000 360deg
-                      )`,
-                    }}
-                  >
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background: `radial-gradient(circle, white 0%, transparent 70%)`,
-                      }}
-                    />
-                  </div>
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-gray-900 rounded-full shadow-lg" />
-                </div>
-
-                {/* Color Slider */}
-                <input
-                  type="range"
-                  min="0"
-                  max="360"
-                  defaultValue="180"
-                  className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                  style={{
-                    background: `linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)`,
-                  }}
-                />
-              </div>
-            </div>
+            <ColorPicker
+              hue={displayHue}
+              shade={displayShade}
+              onChange={updateColor}
+            />
 
           </div>
         </aside>
