@@ -1,6 +1,30 @@
 import Button from './Button';
+import { uploadImage } from '../../api/backend.ts';
 
 export default function Header() {
+  const handleUploadClick = () => {
+    const input = document.createElement("input") as HTMLInputElement;
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      try {
+        const result = await uploadImage(file);
+
+        // result = { status: "...", msg: "..." }
+        alert(`Status: ${result.status}\nMensaje: ${result.msg}`);
+
+      } catch (error) {
+        alert("Error subiendo la.");
+      }
+    };
+
+    input.click();
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 h-20 flex items-center justify-between px-8 shadow-sm">
       <div className="flex items-center gap-3">
@@ -21,7 +45,10 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button variant="secondary">
+        <Button 
+          variant="secondary"
+          onClick={handleUploadClick}
+        >
           Upload room photo
         </Button>
         <Button variant="primary" icon="📷">
