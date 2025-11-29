@@ -68,3 +68,4 @@ pip-wheel-metadata/
 # Evitar subir modelos grandes
 *.pt
 *.pth
+backend/recognition_testing/vision/yolov8m.pt

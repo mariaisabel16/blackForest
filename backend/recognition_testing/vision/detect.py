@@ -1,27 +1,45 @@
 from ultralytics import YOLO
 from PIL import Image
 import io
+from pathlib import Path
 
-model = YOLO("yolov8m.pt")
+model = YOLO("yolov8x-world.pt")
+FURNITURE_CLASSES = ["bed", "sofa", "couch", "chair", "desk", "table",
+    "nightstand", "drawer", "dresser", "wardrobe", "closet",
+    "bookshelf", "shelf", "cabinet", "counter",
+    "lamp", "floor lamp", "table lamp",
+    "potted plant", "plant", "vase",
+    "mirror", "window", "picture", "painting",
+    "carpet", "rug",
+    "tv", "monitor", "laptop", "computer",
+    "pillow", "blanket"]
 
-FURNITURE_CLASSES = ["bed", "chair", "couch", "dining table", "tvmonitor", "potted plant", "lamp"]
+model.set_classes(FURNITURE_CLASSES)
+
 
 def detect_objects(img: Image.Image):
-    results = model(img)[0]
+    results = model.predict(img, verbose=False, imgsz=960)[0]
+
 
     detections = []
-    for box in results.boxes:
+    for i,box in enumerate(results.boxes):
+        
         cls_id    = int(box.cls[0])
         name      = results.names[cls_id]
+        conf   = float(box.conf[0])
 
         if name not in FURNITURE_CLASSES:
-            continue
+          continue
 
         x1, y1, x2, y2 = map(int, box.xyxy[0])
+        print(f"DEBUG {i}: LABEL={name}, CONF={conf}, BBOX={(x1, y1, x2, y2)}")
+
         detections.append({
             "label": name,
-            "bbox": [x1, y1, x2, y2]
+            "bbox": [x1, y1, x2, y2],
+            "confidence": float(box.conf[0])
         })
+
 
     return detections
 

@@ -5,6 +5,8 @@ import requests
 import os
 import base64
 from fastapi.responses import Response
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from backend.services.yolo_services import detect_room_objects
 
 router = APIRouter(prefix="/room", tags=["Room"])
 
@@ -80,3 +82,20 @@ async def add_flux2(file1: UploadFile = File(...), file2: UploadFile = File(...)
         "public_url": f"http://localhost:8000/static/{path}",
         "cost": cost
     }
+async def upload_room(file: UploadFile = File(...)):
+    try:
+    
+        content = await file.read()
+        yolo_result = detect_room_objects(content)
+
+        return {
+            "status": "ok",
+            "filename": file.filename,
+            "objects": yolo_result["objects"],
+        }
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"YOLO detection failed: {exc}"
+        )
