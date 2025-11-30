@@ -31,6 +31,7 @@ export interface AddObjectResponse {
   status?: string;
   public_url?: string;
   cost?: number;
+  name?: string;
 }
 
 export async function applyColor(data: ApplyColorPayload): Promise<ApplyColorResponse> {

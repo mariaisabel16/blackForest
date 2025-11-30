@@ -288,6 +288,18 @@ export default function Home() {
                     if (res.public_url) {
                       setImageUrl(res.public_url);
                     }
+                    setDetectedObjects((prev) => {
+                      const nextId = Math.max(0, ...prev.map((o) => o.id ?? 0)) + 1;
+                      const name = res.name || addObjectFile.name?.split('.')[0] || 'Added object';
+                      return [
+                        ...prev,
+                        {
+                          id: nextId,
+                          name,
+                          position: addPosition.trim(),
+                        },
+                      ];
+                    });
                   } catch (err) {
                     console.error('Error adding object', err);
                   } finally {
