@@ -26,18 +26,16 @@ def detect_objects(img: Image.Image):
         
         cls_id    = int(box.cls[0])
         name      = results.names[cls_id]
-        conf   = float(box.conf[0])
 
         if name not in FURNITURE_CLASSES:
           continue
 
-        x1, y1, x2, y2 = map(int, box.xyxy[0])
-        print(f"DEBUG {i}: LABEL={name}, CONF={conf}, BBOX={(x1, y1, x2, y2)}")
+        x1, y1, x2, y2 = [str(int(v)) for v in box.xyxy[0]]
+        print(f"DEBUG {i}: LABEL={name}, BBOX={(x1, y1, x2, y2)}")
 
         detections.append({
             "label": name,
             "bbox": [x1, y1, x2, y2],
-            "confidence": float(box.conf[0])
         })
 
 

@@ -1,11 +1,10 @@
-from fastapi import APIRouter, UploadFile, File, Form
 from pydantic import BaseModel
 from services.flux_service import generate_flux2, generate_add_flux2 
 import requests
 import os
 import base64
 from fastapi.responses import Response
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from services.yolo_services import detect_room_objects
 
 router = APIRouter(prefix="/room", tags=["Room"])
@@ -13,9 +12,19 @@ router = APIRouter(prefix="/room", tags=["Room"])
 @router.post("/upload")
 async def upload_check(file: UploadFile = File(...)):
 
-    content = await file.read()
+     try:
+        content = await file.read()
+        pil_img,objects = detect_room_objects(content)
 
-    return Response(content, media_type=file.content_type)
+        return {
+            "objects": objects
+        }
+
+     except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"YOLO detection failed: {exc}"
+        )
 
 @router.post("/delete_object")
 async def delete_object(prompt: str = Form(...), file: UploadFile = File(...)):
@@ -111,21 +120,3 @@ async def apply_color(prompt: str = Form(...), file: UploadFile = File(...)):
         "public_url": f"http://localhost:8000/static/{path}",
         "cost": cost
     }
-
-async def upload_room(file: UploadFile = File(...)):
-    try:
-    
-        content = await file.read()
-        yolo_result = detect_room_objects(content)
-
-        return {
-            "status": "ok",
-            "filename": file.filename,
-            "objects": yolo_result["objects"],
-        }
-
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"YOLO detection failed: {exc}"
-        )
