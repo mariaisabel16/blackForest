@@ -65,8 +65,9 @@ async def add_flux2(
 
     # Save file 1
     temp_path_1 = f"temp/{file1.filename}"
+    content1 = await file1.read()
     with open(temp_path_1, "wb") as f:
-        f.write(await file1.read())
+        f.write(content1)
 
     # Save file 2
     temp_path_2 = f"temp/{file2.filename}"
@@ -82,6 +83,16 @@ async def add_flux2(
 
     img_data = requests.get(image_url).content
 
+    detected_name = None
+    try:
+        _, objects = detect_room_objects(content1)
+        if isinstance(objects, list) and len(objects) > 0:
+            first = objects[0]
+            if isinstance(first, dict):
+                detected_name = first.get("label") or first.get("name")
+    except Exception:
+        detected_name = None
+
     os.makedirs("static", exist_ok=True)
     filename = f"flux2_output_{uuid.uuid4().hex}.jpg"
     path = f"static/{filename}"
@@ -92,7 +103,8 @@ async def add_flux2(
     return {
         "status": "ready",
         "public_url": f"http://localhost:8000/{path}",
-        "cost":cost
+        "cost": cost,
+        "name": detected_name,
     }
 
 @router.post("/apply_color")
