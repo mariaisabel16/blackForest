@@ -42,18 +42,18 @@ async def delete_object(prompt: str = Form(...), file: UploadFile = File(...)):
 
     img_data = requests.get(image_url).content
 
-    os.makedirs("images", exist_ok=True)
+    os.makedirs("static", exist_ok=True)
     filename = "flux2_output.jpg"
-    path = f"images/{filename}"
+    path = f"static/{filename}"
 
     with open(path, "wb") as f:
         f.write(img_data)
 
     return {
         "status": "ready",
-        "public_url": f"http://localhost:8000/static/{path}",
-        "cost": cost
-    }
+        "public_url": f"http://localhost:8000/{path}",
+        "cost":cost
+}
 
 
 @router.post("/add-flux2")
@@ -108,15 +108,15 @@ async def apply_color(prompt: str = Form(...), file: UploadFile = File(...)):
 
     img_data = requests.get(image_url).content
 
-    os.makedirs("images", exist_ok=True)
+    os.makedirs("static", exist_ok=True)
     filename = "flux2_output.jpg"
-    path = f"images/{filename}"
+    path = f"static/{filename}"
 
     with open(path, "wb") as f:
         f.write(img_data)
 
     return {
         "status": "ready",
-        "public_url": f"http://localhost:8000/static/{path}",
-        "cost": cost
-    }
+        "public_url": f"http://localhost:8000/{path}",
+        "cost":cost
+}
