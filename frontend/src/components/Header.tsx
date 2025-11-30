@@ -1,27 +1,36 @@
 import Button from './Button';
 import { uploadFile } from '../../api/backend.ts';
+import type { UploadResponse, DetectedObject } from '../../api/backend.ts';
 
 export default function Header({
   onImageReady,
+  onObjectsDetected,
 }: {
   onImageReady: (url: string) => void;
-}) 
-
-{
-
+  onObjectsDetected: (objects: DetectedObject[]) => void;
+}) {
   const handleClick = async () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
 
     input.onchange = async () => {
-        const file = input.files?.[0];
-        if (!file) return;
+      const file = input.files?.[0];
+      if (!file) return;
 
-        const blob = await uploadFile(file);  
-        const url = URL.createObjectURL(blob); // 👈 imagen del backend
+      const result = await uploadFile(file);
+      // Usa la imagen que devuelva el backend; si no viene, usa el archivo local
+      const displayImage = result.imageData || URL.createObjectURL(file);
+      onImageReady(displayImage);
 
-        onImageReady(url);
+      const apiObjects = Array.isArray(result.objects) ? result.objects : [];
+      const mapped: DetectedObject[] | undefined = apiObjects.map((obj, idx) => ({
+        id: idx + 1,
+        name: obj.label,
+        position: obj.bbox,
+      }));
+
+      onObjectsDetected(mapped && mapped.length > 0 ? mapped : []);
     };
 
     input.click();
@@ -52,10 +61,7 @@ export default function Header({
           variant="secondary"
           onClick={handleClick}
         >
-          Upload room photo
-        </Button>
-        <Button variant="primary" icon="📷">
-          Add objects
+          Upload photo
         </Button>
       </div>
     </header>

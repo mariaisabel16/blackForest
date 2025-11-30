@@ -4,9 +4,10 @@ interface ColorPickerProps {
   hue: number;
   shade: number;
   onChange: (hue: number, shade: number) => void;
+  onApply?: () => void;
 }
 
-export default function ColorPicker({ hue, shade, onChange }: ColorPickerProps) {
+export default function ColorPicker({ hue, shade, onChange, onApply }: ColorPickerProps) {
   const wheelRef = useRef<HTMLDivElement | null>(null);
   const minMarkerOffset = 12;
   const maxMarkerOffset = 70;
@@ -137,6 +138,15 @@ export default function ColorPicker({ hue, shade, onChange }: ColorPickerProps) 
           />
         </div>
       </div>
+
+      {onApply && (
+        <button
+          className="mt-6 w-full h-10 rounded-md bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors"
+          onClick={onApply}
+        >
+          Apply color
+        </button>
+      )}
     </div>
   );
 }
