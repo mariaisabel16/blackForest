@@ -6,7 +6,7 @@ import os
 import base64
 from fastapi.responses import Response
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from .services.yolo_services import detect_room_objects
+from services.yolo_services import detect_room_objects
 
 router = APIRouter(prefix="/room", tags=["Room"])
 
@@ -17,8 +17,8 @@ async def upload_check(file: UploadFile = File(...)):
 
     return Response(content, media_type=file.content_type)
 
-@router.post("/eliminate-flux2")
-async def eliminate_flux2(prompt: str = Form(...), file: UploadFile = File(...)):
+@router.post("/delete_object")
+async def delete_object(prompt: str = Form(...), file: UploadFile = File(...)):
     temp_path = f"temp/{file.filename}"
 
     os.makedirs("temp", exist_ok=True)
@@ -82,6 +82,36 @@ async def add_flux2(file1: UploadFile = File(...), file2: UploadFile = File(...)
         "public_url": f"http://localhost:8000/static/{path}",
         "cost": cost
     }
+
+@router.post("/apply_color")
+async def apply_color(prompt: str = Form(...), file: UploadFile = File(...)):
+    temp_path = f"temp/{file.filename}"
+
+    os.makedirs("temp", exist_ok=True)
+    with open(temp_path, "wb") as f:
+        f.write(await file.read())
+
+    prompt_final = f"Change the object to the specified color: {prompt}"
+
+    result = generate_flux2(prompt_final, temp_path)
+    image_url = result["image_url"]
+    cost = result["cost"]
+
+    img_data = requests.get(image_url).content
+
+    os.makedirs("images", exist_ok=True)
+    filename = "flux2_output.jpg"
+    path = f"images/{filename}"
+
+    with open(path, "wb") as f:
+        f.write(img_data)
+
+    return {
+        "status": "ready",
+        "public_url": f"http://localhost:8000/static/{path}",
+        "cost": cost
+    }
+
 async def upload_room(file: UploadFile = File(...)):
     try:
     

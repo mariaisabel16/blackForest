@@ -18,6 +18,7 @@ def encode_image_base64(image_path: str) -> str:
     with open(image_path, "rb") as img:
         return base64.b64encode(img.read()).decode("utf-8")
 
+
 def generate_flux2(prompt: str, image_path: str):
 
     if API_KEY is None:
