@@ -5,9 +5,11 @@ import type { UploadResponse, DetectedObject } from '../../api/backend.ts';
 export default function Header({
   onImageReady,
   onObjectsDetected,
+  onImageUpload,
 }: {
   onImageReady: (url: string) => void;
   onObjectsDetected: (objects: DetectedObject[]) => void;
+  onImageUpload: (file: File) => Promise<void>;
 }) {
   const handleClick = async () => {
     const input = document.createElement('input');
@@ -18,19 +20,7 @@ export default function Header({
       const file = input.files?.[0];
       if (!file) return;
 
-      const result = await uploadFile(file);
-      // Usa la imagen que devuelva el backend; si no viene, usa el archivo local
-      const displayImage = result.imageData || URL.createObjectURL(file);
-      onImageReady(displayImage);
-
-      const apiObjects = Array.isArray(result.objects) ? result.objects : [];
-      const mapped: DetectedObject[] | undefined = apiObjects.map((obj, idx) => ({
-        id: idx + 1,
-        name: obj.label,
-        position: obj.bbox,
-      }));
-
-      onObjectsDetected(mapped && mapped.length > 0 ? mapped : []);
+      await onImageUpload(file);
     };
 
     input.click();
