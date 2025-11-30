@@ -93,7 +93,15 @@ def generate_add_flux2(prompt: str, image_path1: str, image_path2: str):
     if API_KEY is None:
         raise Exception("FLUX_API_KEY is missing. Load .env or export variable.")
 
-    img_1_b64 = encode_image_base64(image_path1)
+    resized_path_1 = resize_to_multiple_of_16(image_path1)
+
+    img_1_b64 = encode_image_base64(resized_path_1)
+
+    img = Image.open(resized_path_1)
+    w, h = img.size
+
+
+    img_1_b64 = encode_image_base64(resized_path_1)
     img_2_b64 = encode_image_base64(image_path2)
 
     payload = {
