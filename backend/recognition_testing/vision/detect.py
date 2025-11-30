@@ -30,12 +30,13 @@ def detect_objects(img: Image.Image):
         if name not in FURNITURE_CLASSES:
           continue
 
-        x1, y1, x2, y2 = [str(int(v)) for v in box.xyxy[0]]
+        x1, y1, x2, y2 = map(int, box.xyxy[0])
+        bbox_str = f"{x1},{y1},{x2},{y2}"
         print(f"DEBUG {i}: LABEL={name}, BBOX={(x1, y1, x2, y2)}")
 
         detections.append({
             "label": name,
-            "bbox": [x1, y1, x2, y2],
+            "bbox": bbox_str
         })
 
 

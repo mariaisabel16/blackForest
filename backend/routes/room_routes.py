@@ -16,9 +16,7 @@ async def upload_check(file: UploadFile = File(...)):
         content = await file.read()
         pil_img,objects = detect_room_objects(content)
 
-        return {
-            "objects": objects
-        }
+        return objects
 
      except Exception as exc:
         raise HTTPException(
