@@ -6,6 +6,7 @@ import base64
 from fastapi.responses import Response
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from services.yolo_services import detect_room_objects
+import uuid
 
 router = APIRouter(prefix="/room", tags=["Room"])
 
@@ -41,7 +42,7 @@ async def delete_object(prompt: str = Form(...), file: UploadFile = File(...)):
     img_data = requests.get(image_url).content
 
     os.makedirs("static", exist_ok=True)
-    filename = "flux2_output.jpg"
+    filename = f"flux2_output_{uuid.uuid4().hex}.jpg"
     path = f"static/{filename}"
 
     with open(path, "wb") as f:
@@ -107,7 +108,7 @@ async def apply_color(prompt: str = Form(...), file: UploadFile = File(...)):
     img_data = requests.get(image_url).content
 
     os.makedirs("static", exist_ok=True)
-    filename = "flux2_output.jpg"
+    filename = f"flux2_output_{uuid.uuid4().hex}.jpg"
     path = f"static/{filename}"
 
     with open(path, "wb") as f:
