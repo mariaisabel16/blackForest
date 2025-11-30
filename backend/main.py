@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import room_routes
 from dotenv import load_dotenv
-from backend.routes.room_routes import router as room_router
+from routes.room_routes import router as room_router
 
 load_dotenv()
 app = FastAPI(title="RoomAI Designer API")

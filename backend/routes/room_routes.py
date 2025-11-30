@@ -6,7 +6,7 @@ import os
 import base64
 from fastapi.responses import Response
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from backend.services.yolo_services import detect_room_objects
+from .services.yolo_services import detect_room_objects
 
 router = APIRouter(prefix="/room", tags=["Room"])
 
