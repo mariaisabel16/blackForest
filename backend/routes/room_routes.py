@@ -56,7 +56,11 @@ async def delete_object(prompt: str = Form(...), file: UploadFile = File(...)):
 
 
 @router.post("/add-flux2")
-async def add_flux2(file1: UploadFile = File(...), file2: UploadFile = File(...)):
+async def add_flux2(
+    position: str = Form(...),
+    file1: UploadFile = File(...),
+    file2: UploadFile = File(...),
+):
     os.makedirs("temp", exist_ok=True)
 
     # Save file 1
@@ -70,7 +74,7 @@ async def add_flux2(file1: UploadFile = File(...), file2: UploadFile = File(...)
         f.write(await file2.read())
         
 
-    prompt_final = f"Add image {file1.filename} to {file2.filename}"
+    prompt_final = f"Add image {file1.filename} to {file2.filename} at {position}"
 
     result = generate_add_flux2(prompt_final, temp_path_1, temp_path_2)
     image_url = result["image_url"]
@@ -78,17 +82,17 @@ async def add_flux2(file1: UploadFile = File(...), file2: UploadFile = File(...)
 
     img_data = requests.get(image_url).content
 
-    os.makedirs("images", exist_ok=True)
-    filename = "flux2_output.jpg"
-    path = f"images/{filename}"
+    os.makedirs("static", exist_ok=True)
+    filename = f"flux2_output_{uuid.uuid4().hex}.jpg"
+    path = f"static/{filename}"
 
     with open(path, "wb") as f:
         f.write(img_data)
 
     return {
         "status": "ready",
-        "public_url": f"http://localhost:8000/static/{path}",
-        "cost": cost
+        "public_url": f"http://localhost:8000/{path}",
+        "cost":cost
     }
 
 @router.post("/apply_color")
