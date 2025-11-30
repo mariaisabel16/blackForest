@@ -3,6 +3,8 @@ import time
 import requests
 from datetime import datetime
 import base64
+import math
+from PIL import Image
 
 
 API_KEY = "9f8ee884-d0e5-41e4-948b-d1e62f837c36"
@@ -18,22 +20,43 @@ def encode_image_base64(image_path: str) -> str:
     with open(image_path, "rb") as img:
         return base64.b64encode(img.read()).decode("utf-8")
 
+def resize_to_multiple_of_16(image_path: str) -> str:
+    img = Image.open(image_path).convert("RGB")
+
+    w, h = img.size
+
+    new_w = math.ceil(w / 16) * 16
+    new_h = math.ceil(h / 16) * 16
+
+    # Resize
+    resized = img.resize((new_w, new_h), Image.LANCZOS)
+
+    # Save resized version
+    new_path = image_path.replace(".jpg", "_resized.jpg").replace(".png", "_resized.png")
+    resized.save(new_path)
+
+    return new_path
+
 
 def generate_flux2(prompt: str, image_path: str):
 
     if API_KEY is None:
         raise Exception("FLUX_API_KEY is missing. Load .env or export variable.")
 
-    img_b64 = encode_image_base64(image_path)
+    resized_path = resize_to_multiple_of_16(image_path)
 
-    # 1. Send request
+    img_b64 = encode_image_base64(resized_path)
+
+    img = Image.open(resized_path)
+    w, h = img.size
+
     payload = {
         "prompt": prompt,
         "input_image": img_b64,
-        "width": 1024,
-        "height": 1024,
+        "width": w,
+        "height": h,
         "safety_tolerance": 2
-    }   
+    }
 
 
     r = requests.post(API_URL, headers=HEADERS, json=payload)
