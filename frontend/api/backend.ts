@@ -27,6 +27,12 @@ export interface ApplyColorResponse {
   cost?: number;
 }
 
+export interface AddObjectResponse {
+  status?: string;
+  public_url?: string;
+  cost?: number;
+}
+
 export async function applyColor(data: ApplyColorPayload): Promise<ApplyColorResponse> {
   const fileBlob = await fetch(data.imageUrl).then((r) => r.blob());
   const formData = new FormData();
@@ -72,6 +78,33 @@ export async function deleteObject(data: DeleteObjectPayload): Promise<DeleteObj
 
   if (!res.ok) {
     throw new Error('No se pudo eliminar el objeto');
+  }
+
+  return res.json();
+}
+
+export async function addObject({
+  imageUrl,
+  objectFile,
+  position,
+}: {
+  imageUrl: string;
+  objectFile: File;
+  position: string;
+}): Promise<AddObjectResponse> {
+  const baseBlob = await fetch(imageUrl).then((r) => r.blob());
+  const formData = new FormData();
+  formData.append('file1', objectFile, objectFile.name || 'object.png');
+  formData.append('file2', baseBlob, 'background.png');
+  formData.append('position', position);
+
+  const res = await fetch(`${API_BASE_URL}/room/add-flux2`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error('No se pudo agregar el objeto');
   }
 
   return res.json();

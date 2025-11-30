@@ -6,10 +6,12 @@ export default function Header({
   onImageReady,
   onObjectsDetected,
   onImageUpload,
+  onAddObjectStart,
 }: {
   onImageReady: (url: string) => void;
   onObjectsDetected: (objects: DetectedObject[]) => void;
   onImageUpload: (file: File) => Promise<void>;
+  onAddObjectStart: (file: File) => void;
 }) {
   const handleClick = async () => {
     const input = document.createElement('input');
@@ -52,6 +54,22 @@ export default function Header({
           onClick={handleClick}
         >
           Upload photo
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async () => {
+              const file = input.files?.[0];
+              if (!file) return;
+              onAddObjectStart(file);
+            };
+            input.click();
+          }}
+        >
+          Add object
         </Button>
       </div>
     </header>

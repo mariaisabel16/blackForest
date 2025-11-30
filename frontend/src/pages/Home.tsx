@@ -3,8 +3,7 @@ import Header from '../components/Header';
 import ObjectCard from '../components/ObjectCard';
 import ColorPicker from '../components/ColorPicker';
 import type { DetectedObject } from '../../api/backend.ts';
-import { applyColor, deleteObject } from '../../api/backend.ts';
-import { uploadFile } from '../../api/backend.ts';
+import { applyColor, deleteObject, uploadFile, addObject } from '../../api/backend.ts';
 
 export default function Home() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -17,6 +16,10 @@ export default function Home() {
   const [isApplyingColor, setIsApplyingColor] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addObjectFile, setAddObjectFile] = useState<File | null>(null);
+  const [addPosition, setAddPosition] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const handleSelectObject = (id: number, opts?: { keepPicker?: boolean }) => {
     setSelectedObject(id);
@@ -119,6 +122,11 @@ export default function Home() {
             setIsUploading(false);
           }
         }}
+        onAddObjectStart={(file) => {
+          setAddObjectFile(file);
+          setAddPosition('');
+          setShowAddModal(true);
+        }}
       />
 
       <div className="grid grid-cols-[220px_1fr_240px] gap-4 p-6">
@@ -136,11 +144,11 @@ export default function Home() {
                 name={obj.name}
                 position={obj.position || ''}
                 isSelected={(obj.id ?? i) === selectedObject}
-                onClick={() => handleSelectObject(obj.id ?? i)}
-                onOpenProperties={() => handleOpenProperties(obj.id ?? i)}
-                onDelete={async () => {
-                  const targetId = obj.id ?? i;
-                  const currentImage = imageUrl;
+              onClick={() => handleSelectObject(obj.id ?? i)}
+              onOpenProperties={() => handleOpenProperties(obj.id ?? i)}
+              onDelete={async () => {
+                const targetId = obj.id ?? i;
+                const currentImage = imageUrl;
                   if (!currentImage) return;
                   try {
                     setIsDeleting(true);
@@ -229,12 +237,69 @@ export default function Home() {
           )}
         </div>
       </div>
-      {(isApplyingColor || isUploading || isDeleting) && (
+      {(isApplyingColor || isUploading || isDeleting || isAdding) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
           <div className="bg-white rounded-lg shadow-xl px-6 py-4 text-sm font-semibold text-gray-700 border border-gray-200">
             {isApplyingColor && 'Applying color, please wait...'}
             {isUploading && 'Uploading image, please wait...'}
             {isDeleting && 'Deleting object, please wait...'}
+            {isAdding && 'Adding object, please wait...'}
+          </div>
+        </div>
+      )}
+      {showAddModal && addObjectFile && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-[360px] border border-gray-200">
+            <h3 className="text-base font-semibold text-gray-900 mb-3">Add object</h3>
+            <p className="text-xs text-gray-500 mb-4">
+              Enter where to place it (e.g., &quot;top-left&quot; or &quot;x,y,width,height&quot;).
+            </p>
+            <input
+              type="text"
+              value={addPosition}
+              onChange={(e) => setAddPosition(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              placeholder="top-left or 100,200,80,120"
+            />
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                className="px-3 py-2 text-sm rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                onClick={() => {
+                  setShowAddModal(false);
+                  setAddObjectFile(null);
+                  setAddPosition('');
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-3 py-2 text-sm rounded-md bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50"
+                disabled={!addPosition.trim()}
+                onClick={async () => {
+                  if (!imageUrl || !addObjectFile) return;
+                  try {
+                    setShowAddModal(false);
+                    setIsAdding(true);
+                    const res = await addObject({
+                      imageUrl,
+                      objectFile: addObjectFile,
+                      position: addPosition.trim(),
+                    });
+                    if (res.public_url) {
+                      setImageUrl(res.public_url);
+                    }
+                  } catch (err) {
+                    console.error('Error adding object', err);
+                  } finally {
+                    setIsAdding(false);
+                    setAddObjectFile(null);
+                    setAddPosition('');
+                  }
+                }}
+              >
+                Add object
+              </button>
+            </div>
           </div>
         </div>
       )}
